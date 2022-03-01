@@ -14,6 +14,8 @@ import networks from '../../networks.json';
 const Web3 = require('web3')
 var BN = Web3.utils.BN;
 
+import BigNumber from 'bignumber.js'
+
 const abi = [
     {
         constant: true,
@@ -139,16 +141,21 @@ export async function strategy(
 
     // sum up
     let stakedTDAO = stakedLPBalances.returnData.map((stakedBalance, index) => {
-        return new BN(lpBalances.returnData[index].substring(2, 66), 16).add(
-            new BN(stakedBalance.substring(2, 66), 16)
-        ).mul(
-            new BN(pairsInfo.pairs[0].reserve0)
-        ).mul(
-            new BN(2)
-        )
-        .div(
-            new BN(pairsInfo.pairs[0].totalSupply)
-        );
+        return new BigNumber(lpBalances.returnData[index].substring(2, 66), 16)
+            .plus(new BigNumber(stakedBalance.substring(2, 66), 16))
+            .multipliedBy(new BigNumber(pairsInfo.pairs[0].reserve0))
+            .multipliedBy(new BigNumber(2))
+            .div(new BigNumber(pairsInfo.pairs[0].totalSupply)).div(10 ** 18)
+        // return new BN(lpBalances.returnData[index].substring(2, 66), 16).add(
+        //     new BN(stakedBalance.substring(2, 66), 16)
+        // ).mul(
+        //     new BN(pairsInfo.pairs[0].reserve0)
+        // ).mul(
+        //     new BN(2)
+        // )
+        // .div(
+        //     new BN(pairsInfo.pairs[0].totalSupply)
+        // );
     });
 
     return Object.fromEntries(
